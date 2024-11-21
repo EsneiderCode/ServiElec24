@@ -38,10 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Enviar el correo
     if (mail($to, $email_subject, $email_body, $headers)) {
       http_response_code(200); 
-      echo "El mensaje ha sido enviado. ¡Gracias!";
   } else {
       http_response_code(500);
-      echo "Error al enviar el mensaje. Inténtalo de nuevo más tarde.";
   }
 } else {
     echo 'Acceso no autorizado.';
