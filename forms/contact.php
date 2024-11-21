@@ -1,41 +1,40 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recoger los datos del formulario
+    $name = htmlspecialchars(trim($_POST['name']));
+    $email = htmlspecialchars(trim($_POST['email']));
+    $subject = htmlspecialchars(trim($_POST['subject']));
+    $message = htmlspecialchars(trim($_POST['message']));
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'adm@servielec24.com';
+    // Validar los campos
+    if (empty($name) || empty($email) || empty($subject) || empty($message)) {
+        echo 'Por favor, complete todos los campos.';
+        exit;
+    }
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo 'Correo electrónico no válido.';
+        exit;
+    }
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+    // Configuración del correo
+    $to = "adm@servielec24.com"; // Cambia esto por el email donde quieres recibir los mensajes
+    $email_subject = "Formulario de Contacto: $subject";
+    $email_body = "Has recibido un nuevo mensaje.\n\n" .
+                  "Nombre: $name\n" .
+                  "Correo: $email\n\n" .
+                  "Mensaje:\n$message\n";
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+    $headers = "From: $email\n";
+    $headers .= "Reply-To: $email\n";
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
-
-  echo $contact->send();
+    // Enviar el correo
+    if (mail($to, $email_subject, $email_body, $headers)) {
+        echo 'El mensaje ha sido enviado. Gracias!';
+    } else {
+        echo 'Error al enviar el mensaje. Inténtalo de nuevo más tarde.';
+    }
+} else {
+    echo 'Acceso no autorizado.';
+}
 ?>
