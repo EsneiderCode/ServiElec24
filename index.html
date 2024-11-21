@@ -645,3 +645,42 @@
     <script src="assets/js/main.js"></script>
   </body>
 </html>
+
+<script>
+  document.querySelector(".php-email-form").addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    const loadingDiv = form.querySelector(".loading");
+    const errorDiv = form.querySelector(".error-message");
+    const successDiv = form.querySelector(".sent-message");
+
+    loadingDiv.style.display = "block";
+    errorDiv.style.display = "none";
+    successDiv.style.display = "none";
+
+    try {
+      const response = await fetch(form.action, {
+        method: form.method,
+        body: formData,
+      });
+
+      const result = await response.text();
+
+      loadingDiv.style.display = "none";
+
+      if (response.ok && result.includes("Gracias")) {
+        successDiv.style.display = "block";
+      } else {
+        errorDiv.style.display = "block";
+        errorDiv.textContent = result; 
+      }
+    } catch (error) {
+      loadingDiv.style.display = "none";
+      errorDiv.style.display = "block";
+      errorDiv.textContent = "Hubo un problema al enviar el formulario. Inténtalo de nuevo.";
+    }
+  });
+</script>

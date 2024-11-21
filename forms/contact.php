@@ -1,10 +1,10 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Recoger los datos del formulario
-    $name = htmlspecialchars(trim($_POST['name']));
-    $email = htmlspecialchars(trim($_POST['email']));
-    $subject = htmlspecialchars(trim($_POST['subject']));
-    $message = htmlspecialchars(trim($_POST['message']));
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Recoger y sanitizar los datos del formulario
+    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $subject = filter_input(INPUT_POST, 'subject', FILTER_SANITIZE_STRING);
+    $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_STRING);
 
     // Validar los campos
     if (empty($name) || empty($email) || empty($subject) || empty($message)) {
@@ -17,20 +17,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
+    // Prevenir cabeceras maliciosas en el email
+    if (preg_match('/[\r\n]/', $name) || preg_match('/[\r\n]/', $email) || preg_match('/[\r\n]/', $subject)) {
+        echo 'Entrada no válida detectada.';
+        exit;
+    }
+
     // Configuración del correo
     $to = "adm@servielec24.com"; // Cambia esto por el email donde quieres recibir los mensajes
-    $email_subject = "Formulario de Contacto: $subject";
+    $email_subject = "Formulario de Contacto: " . htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
     $email_body = "Has recibido un nuevo mensaje.\n\n" .
-                  "Nombre: $name\n" .
-                  "Correo: $email\n\n" .
-                  "Mensaje:\n$message\n";
+                  "Nombre: " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "\n" .
+                  "Correo: " . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "\n\n" .
+                  "Mensaje:\n" . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . "\n";
 
-    $headers = "From: $email\n";
-    $headers .= "Reply-To: $email\n";
+    $headers = "From: noreply@yourdomain.com\n"; // Asegúrate de usar un correo válido en tu dominio
+    $headers .= "Reply-To: " . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8";
 
     // Enviar el correo
     if (mail($to, $email_subject, $email_body, $headers)) {
-        echo 'El mensaje ha sido enviado. Gracias!';
+        echo 'El mensaje ha sido enviado. ¡Gracias!';
     } else {
         echo 'Error al enviar el mensaje. Inténtalo de nuevo más tarde.';
     }
