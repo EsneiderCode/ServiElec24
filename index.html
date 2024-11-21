@@ -592,10 +592,13 @@
 
               <div class="col-md-12 text-center">
                 <div class="loading">Cargando...</div>
-                <div class="error-message"></div>
-                <div class="sent-message">
-                  El mensaje ha sido enviado. Gracias!
-                </div>
+
+                <!-- Mensajes de error y éxito -->
+                <div class="error-message text-danger"
+                  style="display: none;"></div> <!-- Mensaje de error -->
+                <div class="sent-message text-success" style="display: none;">
+                  El mensaje ha sido enviado. ¡Gracias!
+                </div> <!-- Mensaje de éxito -->
 
                 <button type="submit">Enviar Mensaje</button>
               </div>
